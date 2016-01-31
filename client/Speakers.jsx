@@ -3,7 +3,7 @@ Speaker = new React.createClass({
     return (
       <div>
         <hr></hr>
-        <input type="checkbox" className="SpeakerCheck" id={"check_"+this.props.id} onClick={this.props.changeSpeakersCount} />
+        <input type="checkbox" className="SpeakerCheck" id={"check_"+this.props.id} onClick={this.props.checkSpeaker} />
         <input type="text" value={this.props.name} id={this.props.id}
                 key={this.props.key} className="speakerName" />
       </div>
@@ -13,9 +13,9 @@ Speaker = new React.createClass({
 
 Speakers = new React.createClass({
   getSpeakers() {
-    var changeSpeakersCount = this.props.changeSpeakersCount;
+    var checkSpeaker = this.props.checkSpeaker;
     return this.props.speakers.map(function(item) {
-      return (<Speaker name={item.name} id={item.id} key={item.id} changeSpeakersCount={changeSpeakersCount} />);
+      return (<Speaker name={item.name} id={item.id} key={item.id} checkSpeaker={checkSpeaker} />);
     });
   },
 
