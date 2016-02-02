@@ -16,4 +16,10 @@
 
 .addSpeaker {
   cursor: pointer;
+  float: left;
+}
+
+.removeSpeaker {
+    color: red;
+    cursor: pointer;
 }

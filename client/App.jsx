@@ -4,15 +4,30 @@ function getTime(t) {
     return Number(d[1])*60+Number(d[2]);
 }
 
+function minutuesToTimeFormat(min) {
+    var t = "";
+    var m = Math.floor(min);
+    var s = Math.floor((min-m)*60);
+    t += (m < 10 ? "0" : "") + m;
+    t += ":" + (s < 10 ? "0" : "") + s;
+    return t;
+}
+
 App = React.createClass({
   getInitialState() {
+      setInterval(this.setSpeakerTime, 30000);
+      var startTime = new Date();
+      var endTime = new Date(startTime.getTime()+2*3600*1000);
+      var reminder = endTime.getMinutes()%15;
+      endTime = new Date(endTime.getTime()-reminder*60000);
+      
     return {speakers: [{name: "", id: Date.now(), key: Date.now(), checked: false}],
-      startTime: Date.now(),
-      endTime: Date.now(),
-      breakTime: 0,
+      startTime: startTime,
+      endTime: endTime,
+      breakTime: 15,
       breakTimeOver: false,
-      sikumTime: 0,
-      speakerTimeInitial: 0,
+      sikumTime: 10,
+      speakerTimeInitial: 7,
       speakerTime: 0,
       activeSpeaker: 0
     };
@@ -41,7 +56,17 @@ App = React.createClass({
         key: Date.now(),
         checked: false
     }]);
+    this.state.activeSpeaker = this.getActiveSpeaker(this.state.speakers);
     this.setState(this.state);
+    setTimeout(this.setSpeakerTime);
+  },
+  
+  removeSpeaker(id) {
+      this.state.speakers = $.makeArray($(this.state.speakers).map(function() {
+         if (this.id != id) return this; 
+      }));
+        this.setState(this.state);
+    setTimeout(this.setSpeakerTime);
   },
 
     checkSpeaker(id) {
@@ -52,15 +77,20 @@ App = React.createClass({
                 return false;
             }
         });
-        newState.activeSpeaker = -1;
-        $(newState.speakers).each(function(indx, sp) {
+        newState.activeSpeaker = this.getActiveSpeaker(newState.speakers);
+        this.setState(newState);
+        setTimeout(this.setSpeakerTime);
+    },
+    
+    getActiveSpeaker(speakers) {
+        var activeSpeaker = -1;
+        $(speakers).each(function(indx, sp) {
             if (!this.checked) {
-                newState.activeSpeaker = indx;
+                activeSpeaker = indx;
                 return false;
             }
         });
-        this.setState(newState);
-        setTimeout(this.setSpeakerTime);
+        return activeSpeaker;
     },
 
   filterChanged(filter) {
@@ -76,12 +106,13 @@ App = React.createClass({
   },
 
   renderFilter() {
-    return (<Filters filterChanged={this.filterChanged} />);
+    return (<Filters filterChanged={this.filterChanged} startTime={this.state.startTime} endTime={this.state.endTime} 
+        breakTime={this.state.breakTime} sikumTime={this.state.sikumTime} speakerTimeInitial={this.state.speakerTimeInitial} />);
   },
 
   renderSpeakers() {
     return (<Speakers speakers={this.state.speakers} checkSpeaker={this.checkSpeaker} getSpeakerTime={this.getSpeakerTime}
-        activeSpeaker={this.state.activeSpeaker} />);
+        activeSpeaker={this.state.activeSpeaker} removeSpeaker={this.removeSpeaker} />);
   },
 
   render() {
@@ -93,11 +124,11 @@ App = React.createClass({
 
         <div>
           {this.renderFilter()}
+          <span>speaker time:{minutuesToTimeFormat(this.state.speakerTime)}</span>
         </div>
         <div>
           {this.renderSpeakers()}
-          <span className="addSpeaker" onClick={this.addSpeaker}>+</span>
-          <span>speaker time:{this.state.speakerTime}</span>
+          <button className="addSpeaker" onClick={this.addSpeaker}>+</button>
         </div>
       </div>
     );
