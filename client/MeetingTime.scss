@@ -1,0 +1,63 @@
+/* CSS declarations go here */
+@import ".meteor/local/build/programs/server/assets/packages/meteoric_ionic-sass/ionic";
+@import ".meteor/local/build/programs/server/assets/packages/meteoric_ionicons-sass/ionicons";
+
+.oneRow > input {
+  margin-left: 1em;
+}
+
+.FiltersSec > div > div {
+  float: left;
+  margin-left: 1em;
+}
+
+.FiltersSec::after {
+  content: "";
+  display: block;
+  clear: both;
+}
+
+.SpeakersSec {
+  margin-top: 2em;
+}
+
+.addSpeaker {
+  cursor: pointer;
+  float: left;
+}
+
+.removeSpeaker {
+    color: red;
+    cursor: pointer;
+}
+
+.oneRow input {
+  float: left;
+}
+
+#breakTime {
+  width: 5em;
+}
+
+#breakTimeOver {
+  vertical-align: middle;
+}
+
+#speakerTime {
+  margin-left: 1em;
+}
+
+input[type="number"] {
+  width: 5em;
+}
+
+input[type="text"] {
+  width: 7em;
+}
+
+input.watchText {
+  width: 3em;
+}
+ input {
+  background-color:  #F0F6F7;
+ }

@@ -20,7 +20,7 @@ App = React.createClass({
       var endTime = new Date(startTime.getTime()+2*3600*1000);
       var reminder = endTime.getMinutes()%15;
       endTime = new Date(endTime.getTime()-reminder*60000);
-      
+
     return {speakers: [{name: "", id: Date.now(), key: Date.now(), checked: false}],
       startTime: startTime,
       endTime: endTime,
@@ -32,7 +32,7 @@ App = React.createClass({
       activeSpeaker: 0
     };
   },
-  
+
   getSpeakerTime() {
       return this.state.speakerTime;
   },
@@ -60,17 +60,17 @@ App = React.createClass({
     this.setState(this.state);
     setTimeout(this.setSpeakerTime);
   },
-  
+
   removeSpeaker(id) {
       this.state.speakers = $.makeArray($(this.state.speakers).map(function() {
-         if (this.id != id) return this; 
+         if (this.id != id) return this;
       }));
         this.setState(this.state);
     setTimeout(this.setSpeakerTime);
   },
 
     checkSpeaker(id) {
-        var newState = this.state; 
+        var newState = this.state;
         $(newState.speakers).each(function() {
             if (id == this.id) {
                 this.checked = !this.checked;
@@ -81,7 +81,7 @@ App = React.createClass({
         this.setState(newState);
         setTimeout(this.setSpeakerTime);
     },
-    
+
     getActiveSpeaker(speakers) {
         var activeSpeaker = -1;
         $(speakers).each(function(indx, sp) {
@@ -106,7 +106,7 @@ App = React.createClass({
   },
 
   renderFilter() {
-    return (<Filters filterChanged={this.filterChanged} startTime={this.state.startTime} endTime={this.state.endTime} 
+    return (<Filters filterChanged={this.filterChanged} startTime={this.state.startTime} endTime={this.state.endTime}
         breakTime={this.state.breakTime} sikumTime={this.state.sikumTime} speakerTimeInitial={this.state.speakerTimeInitial} />);
   },
 
@@ -124,7 +124,7 @@ App = React.createClass({
 
         <div>
           {this.renderFilter()}
-          <span>speaker time:{minutuesToTimeFormat(this.state.speakerTime)}</span>
+          <h4 id="speakerTime">speaker time {minutuesToTimeFormat(this.state.speakerTime)}</h4>
         </div>
         <div>
           {this.renderSpeakers()}
