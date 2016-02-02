@@ -6,20 +6,25 @@ function getTime(t) {
 
 App = React.createClass({
   getInitialState() {
-    return {speakers: [{name: "", id: Date.now(), key: Date.now()}],
+    return {speakers: [{name: "", id: Date.now(), key: Date.now(), checked: false}],
       startTime: Date.now(),
       endTime: Date.now(),
       breakTime: 0,
       breakTimeOver: false,
       sikumTime: 0,
       speakerTimeInitial: 0,
-      speakerTime: 0
+      speakerTime: 0,
+      activeSpeaker: 0
     };
+  },
+  
+  getSpeakerTime() {
+      return this.state.speakerTime;
   },
 
   setSpeakerTime() {
     var newState = this.state;
-    var speakersCount = $('.SpeakerCheck:not(:checked)').length;
+    var speakersCount = $(this.state.speakers).map(function() {if (!this.checked) return this}).length;
     var curDate = new Date();
     var startTime = curDate.getHours()*60+curDate.getMinutes();
     startTime = Math.max(startTime, getTime(newState.startTime))
@@ -33,11 +38,30 @@ App = React.createClass({
     this.state.speakers = this.state.speakers.concat([{
         name: "",
         id: Date.now(),
-        key: Date.now()
+        key: Date.now(),
+        checked: false
     }]);
     this.setState(this.state);
-    setTimeout(this.setSpeakerTime);
   },
+
+    checkSpeaker(id) {
+        var newState = this.state; 
+        $(newState.speakers).each(function() {
+            if (id == this.id) {
+                this.checked = !this.checked;
+                return false;
+            }
+        });
+        newState.activeSpeaker = -1;
+        $(newState.speakers).each(function(indx, sp) {
+            if (!this.checked) {
+                newState.activeSpeaker = indx;
+                return false;
+            }
+        });
+        this.setState(newState);
+        setTimeout(this.setSpeakerTime);
+    },
 
   filterChanged(filter) {
     var newState = this.state;
@@ -51,16 +75,13 @@ App = React.createClass({
     setTimeout(this.setSpeakerTime);
   },
 
-  checkSpeaker() {
-    this.setSpeakerTime();
-  },
-
   renderFilter() {
     return (<Filters filterChanged={this.filterChanged} />);
   },
 
   renderSpeakers() {
-    return (<Speakers speakers={this.state.speakers} checkSpeaker={this.checkSpeaker} />);
+    return (<Speakers speakers={this.state.speakers} checkSpeaker={this.checkSpeaker} getSpeakerTime={this.getSpeakerTime}
+        activeSpeaker={this.state.activeSpeaker} />);
   },
 
   render() {

@@ -1,30 +1,44 @@
 Speaker = new React.createClass({
-  render() {
-    return (
-      <div>
-        <hr></hr>
-        <input type="checkbox" className="SpeakerCheck" id={"check_"+this.props.id} onClick={this.props.checkSpeaker} />
-        <input type="text" value={this.props.name} id={this.props.id}
-                key={this.props.key} className="speakerName" />
-      </div>
-    );
-  }
+    checkSpeaker() {
+        this.props.checkSpeaker(this.props.id);
+    },
+    
+    render() {
+        return (
+            <div>
+            <hr></hr>
+            <input type="checkbox" className="SpeakerCheck" id={"check_"+this.props.id} onClick={this.checkSpeaker}
+                disabled={!this.props.active} />
+            <input type="text" value={this.props.name} id={this.props.id} key={this.props.key} className="speakerName"
+                 />
+            <Watch getSpeakerTime={this.props.getSpeakerTime} disabled={!this.props.active} />
+            </div>
+        );
+    }
 });
 
 Speakers = new React.createClass({
-  getSpeakers() {
-    var checkSpeaker = this.props.checkSpeaker;
-    return this.props.speakers.map(function(item) {
-      return (<Speaker name={item.name} id={item.id} key={item.id} checkSpeaker={checkSpeaker} />);
-    });
-  },
+ 
+    isSpeakerActive(indx) {
+        return this.props.activeSpeaker == indx;
+    },
+    
+    getSpeakers() {
+        var checkSpeaker = this.props.checkSpeaker;
+        var getSpeakerTime = this.props.getSpeakerTime;
+        var isSpeakerActive = this.isSpeakerActive;
+        
+        return this.props.speakers.map(function(item, indx) {
+            return (<Speaker name={item.name} id={item.id} key={item.id} checkSpeaker={checkSpeaker}
+            getSpeakerTime={getSpeakerTime} active={isSpeakerActive(indx)} />);
+        });
+    },
 
-
-  render() {
-    return (
-      <div className="SpeakersSec">
-        {this.getSpeakers()}
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div className="SpeakersSec">
+            {this.getSpeakers()}
+            </div>
+        );
+    }
 });
