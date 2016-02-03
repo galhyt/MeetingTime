@@ -119,7 +119,7 @@ App = React.createClass({
     return (
       <div className="container">
         <header>
-          <h1>Times Table</h1>
+          <h1>Times Table Seesion Id {this.props.sessionId}</h1>
         </header>
 
         <div>
