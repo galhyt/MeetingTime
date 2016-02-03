@@ -4,6 +4,18 @@ Router.onBeforeAction(function() {
   });
 
 Router.route('', function () {
+    if (Meteor.isClient) {
+        var sessionId = localStorage["sessionId"];
+        if (sessionId != null) {
+            var url = '/'+sessionId;
+            var adminId = localStorage["adminId"];
+            if (adminId != null)
+                url += '/' + adminId;
+            window.location.replace(url);
+            this.response.end();
+        }
+    }
+
     if (Meteor.isServer) {
         Meetings.allow({
             insert: function(userId, post) {           
@@ -11,26 +23,26 @@ Router.route('', function () {
             }
         });
     }
-    var adminId = localStorage["adminId"];
-    if (adminId == null) {
-        adminId = Random.id();
-        localStorage.setItem("adminId", adminId);
-    }
+    
+    adminId = Random.id();
     var _id = Meetings.insert({name:"", adminId: adminId});
     localStorage.setItem("sessionId", _id);
-    publishForAdmin(_id, adminId);
+//    publishForAdmin(_id, adminId);
+    renderApp();
 });   
 
 Router.route('/:sessionId', function () {
     console.log('route "/:sessionId"');
     var params = this.params;
-    publishForAdmin(params.sessionId);
+//    publishForAdmin(params.sessionId);
+    renderApp();
 });
 
 Router.route('/:sessionId/:adminId', function () {
     console.log('route "/:sessionId/:adminId"');
     var params = this.params;
-    publishForAdmin(params.sessionId, params.adminId);
+//    publishForAdmin(params.sessionId, params.adminId);
+    renderApp();
 });
 
 function publishForAdmin(sessionId, adminId) {
@@ -66,11 +78,12 @@ function publishForAdmin(sessionId, adminId) {
     
 }
 
-if (Meteor.isClient) {
-  // This code is executed on the client only
-  Meteor.startup(function () {
-    // Use Meteor.startup to render the component after the page is ready
-    React.render(<App sessionId={localStorage["sessionId"]} />, document.getElementById("render-target"));
-  });
+function renderApp() {
+    if (Meteor.isClient) {
+        // This code is executed on the client only
+        Meteor.startup(function () {
+            // Use Meteor.startup to render the component after the page is ready
+            React.render(<App />, document.getElementById("render-target"));
+        });
+    }
 }
-
