@@ -120,6 +120,7 @@ App = React.createClass({
       <div className="container">
         <header>
           <h1>Times Table Seesion Id {this.props.sessionId}</h1>
+          <h1>User Id {this.props.adminId}</h1>
         </header>
 
         <div>

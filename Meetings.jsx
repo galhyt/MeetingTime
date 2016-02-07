@@ -1,3 +1,9 @@
+if (Meteor.isServer) {
+    // This code is executed on the client only
+    Meteor.startup(function () {
+        publishForAdmin();
+    });
+}
 Router.onBeforeAction(function() {
   
     this.next();
@@ -5,85 +11,71 @@ Router.onBeforeAction(function() {
 
 Router.route('', function () {
     if (Meteor.isClient) {
-        var sessionId = localStorage["sessionId"];
+        var url = '';
+        var sessionId = Session.get('sessionId');
         if (sessionId != null) {
-            var url = '/'+sessionId;
-            var adminId = localStorage["adminId"];
-            if (adminId != null)
-                url += '/' + adminId;
-            window.location.replace(url);
-            this.response.end();
+            url = '/'+sessionId;
         }
+        else {
+            url += '/SetMeeting'; 
+        }
+        
+        window.location.replace(url);
+        this.response.end();
     }
+});
 
-    if (Meteor.isServer) {
-        Meetings.allow({
-            insert: function(userId, post) {           
-                return true;
-            }
-        });
-    }
-    
-    adminId = Random.id();
+Router.route('/SetMeeting', function () {
+    var adminId = Meteor.userId();
     var _id = Meetings.insert({name:"", adminId: adminId});
-    localStorage.setItem("sessionId", _id);
-//    publishForAdmin(_id, adminId);
-    renderApp();
+    Session.set("sessionId", _id);
+    renderApp(_id, adminId);
 });   
 
 Router.route('/:sessionId', function () {
     console.log('route "/:sessionId"');
     var params = this.params;
-//    publishForAdmin(params.sessionId);
-    renderApp();
+    renderApp(params.sessionId, Meteor.userId());
 });
-
+/*
 Router.route('/:sessionId/:adminId', function () {
     console.log('route "/:sessionId/:adminId"');
     var params = this.params;
-//    publishForAdmin(params.sessionId, params.adminId);
-    renderApp();
+    renderApp(params.sessionId,params.adminId);
 });
-
-function publishForAdmin(sessionId, adminId) {
+*/
+function publishForAdmin() {
     if (Meteor.isServer) {
+        Meetings.allow({
+            insert: function(userId, post) {
+                return true;
+            },
+            
+            update: function(userId, post, fieldNames, modifier) {
+                return post.adminId == userId;
+            },
+            
+            remove: function(userId, post) {
+                return post.adminId == userId;
+            }
+        });
         
         Meteor.publish("meeting", function () {
-            return Meetings.find({_id: sessionId});
+            return Meetings.find({adminId: this.userId});
         });
         
-        Speakers.publish("speakers", function () {
-            return Speakers.find({meetingId: sessionId});
-        });
-        
-        var meeting = Meetings.find({_id: sessionId});
-        if (meeting.length > 0 && meeting.adminId === adminId) {
-            Speakers.allow({
-                'insert': function(userId, post) {           
-                    return (post.meetingId === sessionId)
-                },
-                'update': function(userId, post, fieldNames, modifier) {
-                    return (post.meetingId === sessionId);
-                },
-                'remove': function (userId, post) {
-                    return (post.meetingId === sessionId);
-                }
-            });
-        }
     }
     else {
         Meteor.subscribe("meeting");
-        Meteor.subscribe("speakers");
     }
-    
 }
 
-function renderApp() {
+function renderApp(meetingId, adminId) {
     if (Meteor.isClient) {
         // This code is executed on the client only
         Meteor.startup(function () {
             // Use Meteor.startup to render the component after the page is ready
-            React.render(<App />, document.getElementById("render-target"));
+            React.render(<App MeetingId={meetingId} AdminId={adminId} />, document.getElementById("render-target"));
         });
     }
 }
